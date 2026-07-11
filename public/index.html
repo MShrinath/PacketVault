@@ -4,6 +4,8 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>PacketVault</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="alternate icon" href="/favicon.ico">
         <link rel="stylesheet" href="style.css" />
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
     </head>
@@ -28,7 +30,10 @@
                     <textarea id="sharednote" rows="10" placeholder="Type here on your phone, open it on your laptop."></textarea>
                     <div class="toolbar">
                         <p id="sync-status" class="sync-status">Loading shared note...</p>
-                        <button class="button" type="button" onclick="saveSharedNote()">Save now</button>
+                        <div class="toolbar-actions">
+                            <button class="button" type="button" onclick="copySharedNote()">Copy</button>
+                            <button class="button" type="button" onclick="saveSharedNote()">Save now</button>
+                        </div>
                     </div>
                 </div>
             </section>

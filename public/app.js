@@ -80,6 +80,36 @@ function refreshSharedNote() {
     });
 }
 
+async function copySharedNote() {
+    const text = getSharedNoteValue();
+
+    if (!text) {
+        setStatus('Nothing to copy');
+        return;
+    }
+
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        }
+
+        const prev = syncStatus ? syncStatus.textContent : '';
+        setStatus('Copied to clipboard');
+        window.setTimeout(() => {
+            setStatus(prev || (isDirty ? 'Unsaved changes' : ''));
+        }, 1800);
+    } catch (err) {
+        setStatus('Copy failed');
+    }
+}
+
 function scheduleSharedSave() {
     isDirty = true;
     setStatus("Unsaved changes");
