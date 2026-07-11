@@ -40,7 +40,7 @@ function setSharedNoteValue(value) {
     }
 }
 
-async function loadSharedNote() {
+async function loadSharedNote(force = false) {
     const response = await fetch(noteEndpoint);
 
     if (!response.ok) {
@@ -50,8 +50,12 @@ async function loadSharedNote() {
     const data = await response.json();
     const remoteValue = data.content || "";
 
-    if (sharedNoteInput && !isDirty && document.activeElement !== sharedNoteInput && remoteValue !== getSharedNoteValue()) {
-        setSharedNoteValue(remoteValue);
+    // If force is true, overwrite the local field even if dirty.
+    if (sharedNoteInput) {
+        const shouldSet = force || (!isDirty && document.activeElement !== sharedNoteInput && remoteValue !== getSharedNoteValue());
+        if (shouldSet) {
+            setSharedNoteValue(remoteValue);
+        }
     }
 
     setStatus(data.updatedAt ? `Synced ${new Date(data.updatedAt).toLocaleString()}` : "Synced");
@@ -74,7 +78,13 @@ async function saveSharedNote() {
 }
 
 function refreshSharedNote() {
-    loadSharedNote().catch((error) => {
+    setStatus('Refreshing...');
+    loadSharedNote(true).then(() => {
+        setStatus('Refreshed');
+        setTimeout(() => {
+            setStatus(isDirty ? 'Unsaved changes' : '');
+        }, 1000);
+    }).catch((error) => {
         setStatus(error.message);
     });
 }
