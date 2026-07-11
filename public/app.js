@@ -111,13 +111,10 @@ async function copySharedNote() {
 }
 
 function scheduleSharedSave() {
+    // Mark the note dirty but do not auto-save.
+    // Saving will occur only when the user clicks "Save now".
     isDirty = true;
     setStatus("Unsaved changes");
-
-    window.clearTimeout(saveTimer);
-    saveTimer = window.setTimeout(() => {
-        saveSharedNote();
-    }, 700);
 }
 
 async function uploadFile() {
