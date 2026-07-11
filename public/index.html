@@ -1,11 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PacketVault</title>
+        <link rel="stylesheet" href="style.css" />
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    </head>
+    <body>
+        <main class="shell">
+            <section class="hero">
+                <p class="eyebrow">Phone to laptop sync</p>
+                <h1>PacketVault</h1>
+                <p class="lede">Share quick text and photos between phone and laptop using one link on both devices.</p>
+            </section>
+
+            <section class="card card--primary">
+                <div class="card__header">
+                    <div>
+                        <h2>Shared textbox</h2>
+                        <p class="card__hint">One note that stays in sync between your devices.</p>
+                    </div>
+                    <button class="button button--ghost" type="button" onclick="refreshSharedNote()">Refresh</button>
+                </div>
+
+                <div class="stack">
+                    <textarea id="sharednote" rows="10" placeholder="Type here on your phone, open it on your laptop."></textarea>
+                    <div class="toolbar">
+                        <p id="sync-status" class="sync-status">Loading shared note...</p>
+                        <button class="button" type="button" onclick="saveSharedNote()">Save now</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card__header">
+                    <div>
+                        <h2>Files</h2>
+                        <p class="card__hint">Upload from either device and open the file on the other one.</p>
+                    </div>
+                    <button class="button button--ghost" type="button" onclick="loadFiles()">Refresh list</button>
+                </div>
+                <div class="stack">
+                    <input type="file" id="file" accept="image/*,.txt,.pdf,.doc,.docx,.zip,.rar" />
+                    <button class="button" type="button" onclick="uploadFile()">Upload file</button>
+                    <ul id="files" class="file-list"></ul>
+                </div>
+            </section>
+        </main>
+
+        <script src="app.js"></script>
+    </body>
 </html>
