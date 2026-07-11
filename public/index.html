@@ -45,12 +45,21 @@
                     <button class="button button--ghost" type="button" onclick="loadFiles()">Refresh list</button>
                 </div>
                 <div class="stack">
-                    <input type="file" id="file" accept="image/*,.txt,.pdf,.doc,.docx,.zip,.rar" />
-                    <button class="button" type="button" onclick="uploadFile()">Upload file</button>
+                        <div id="drop-zone" class="drop-zone" role="button" tabindex="0">
+                            <input type="file" id="file" accept="image/*,.txt,.pdf,.doc,.docx,.zip,.rar" multiple />
+                            <div class="drop-content">
+                                <p id="drop-hint" class="drop-hint">Drag & drop files here, or click to choose</p>
+                                <div class="drop-actions">
+                                    <button class="button" type="button" id="upload-button" onclick="uploadFile()">Upload</button>
+                                </div>
+                            </div>
+                        </div>
                     <ul id="files" class="file-list"></ul>
                 </div>
             </section>
         </main>
+
+        <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
         <script src="app.js"></script>
     </body>

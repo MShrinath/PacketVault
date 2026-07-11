@@ -115,6 +115,100 @@ h1 {
     }
 }
 
+/* Drag & drop area for file uploads */
+.drop-zone {
+    border: 2px dashed rgba(31, 26, 23, 0.12);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.6);
+    cursor: pointer;
+    min-height: 120px;
+    transition: background 120ms ease, border-color 120ms ease;
+}
+
+.drop-zone.dragover {
+    background: rgba(24,78,119,0.06);
+    border-color: rgba(24,78,119,0.28);
+}
+
+.drop-zone input[type="file"] {
+    opacity: 0;
+    position: relative;
+    width: 0.1px;
+    height: 0.1px;
+    overflow: hidden;
+}
+
+.drop-hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    pointer-events: none;
+}
+
+.drop-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    max-width: 640px;
+}
+
+.drop-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.file-names {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Toast notifications */
+.toast-container {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10000;
+}
+
+.toast {
+    min-width: 180px;
+    max-width: 320px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(31,26,23,0.94);
+    color: white;
+    box-shadow: 0 8px 24px rgba(31,26,23,0.24);
+    font-weight: 600;
+    font-size: 0.95rem;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.toast--show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast--success { background: rgba(8, 129, 84, 0.96); }
+.toast--error { background: rgba(178, 34, 34, 0.96); }
+.toast--info { background: rgba(24,78,119,0.96); }
+
 .sync-status {
     margin: 0;
     color: var(--muted);

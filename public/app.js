@@ -5,7 +5,6 @@ const noteEndpoint = "/.netlify/functions/note";
 const sharedNoteInput = document.getElementById("sharednote");
 const syncStatus = document.getElementById("sync-status");
 
-let saveTimer = null;
 let isDirty = false;
 
 async function postJson(url, body) {
@@ -119,32 +118,43 @@ function scheduleSharedSave() {
 
 async function uploadFile() {
     const fileInput = document.getElementById("file");
-    const file = fileInput.files[0];
+    const files = fileInput.files && fileInput.files.length ? Array.from(fileInput.files) : [];
 
-    if (!file) {
-        alert("Choose a file first.");
+    if (!files.length) {
+        showToast("Choose a file first.", 'info');
         return;
     }
 
-    const reader = new FileReader();
-
-    reader.onload = async () => {
-        try {
-            const base64 = reader.result.split(",")[1];
-            await postJson(uploadEndpoint, {
-                filename: file.name,
-                content: base64
-            });
-            fileInput.value = "";
-            alert("Uploaded");
-            await loadFiles();
-        } catch (error) {
-            alert(error.message);
+    try {
+        for (const file of files) {
+            await uploadFileFromFile(file);
         }
-    };
-
-    reader.readAsDataURL(file);
+        fileInput.value = "";
+        showToast('Uploaded', 'success');
+        await loadFiles();
+    } catch (error) {
+        showToast(error?.message || 'Upload failed', 'error');
+    }
 }
+
+async function uploadFileFromFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async () => {
+            try {
+                const base64 = reader.result.split(",")[1];
+                await postJson(uploadEndpoint, {
+                    filename: file.name,
+                    content: base64
+                });
+                resolve();
+            } catch (err) {
+                reject(err);
+            }
+        };
+        reader.onerror = () => reject(new Error('File read error'));
+        reader.readAsDataURL(file);
+    });
 
 async function loadFiles() {
     const list = document.getElementById("files");
@@ -205,3 +215,82 @@ if (sharedNoteInput) {
 }
 
 loadFiles();
+
+// Drag & drop handlers for file uploads
+const dropZone = document.getElementById('drop-zone');
+if (dropZone) {
+    const fileInput = document.getElementById('file');
+    const dropHint = document.getElementById('drop-hint');
+
+    // Update hint when files are selected via picker
+    if (fileInput) {
+        fileInput.addEventListener('change', () => {
+            const list = fileInput.files && fileInput.files.length ? Array.from(fileInput.files).map(f => f.name).join(', ') : '';
+            dropHint.textContent = list || 'Drag & drop files here, or click to choose';
+        });
+    }
+
+    // Click on the drop zone (not the Upload button) opens the file picker
+    dropZone.addEventListener('click', (e) => {
+        if (e.target.closest('.button')) return; // clicked the upload button
+        if (fileInput) fileInput.click();
+    });
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const dt = e.dataTransfer;
+        if (!dt) return;
+        const files = Array.from(dt.files || []);
+        if (!files.length) return;
+
+            try {
+                for (const f of files) {
+                    await uploadFileFromFile(f);
+                }
+            // clear file input selection and update hint
+            if (fileInput) {
+                fileInput.value = '';
+                dropHint.textContent = 'Drag & drop files here, or click to choose';
+            }
+            showToast('Uploaded', 'success');
+                await loadFiles();
+            } catch (err) {
+                showToast(err?.message || 'Upload failed', 'error');
+            }
+    });
+}
+
+    // Toast helper
+    function showToast(message, type = 'info', timeout = 3000) {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast--${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        // allow CSS transition
+        requestAnimationFrame(() => toast.classList.add('toast--show'));
+
+        setTimeout(() => {
+            toast.classList.remove('toast--show');
+            setTimeout(() => toast.remove(), 200);
+        }, timeout);
+    }
+}
