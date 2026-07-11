@@ -80,6 +80,8 @@ async function saveSharedNote() {
 function refreshSharedNote() {
     setStatus('Refreshing...');
     loadSharedNote(true).then(() => {
+        // Manual refresh replaces local content; clear dirty state
+        isDirty = false;
         setStatus('Refreshed');
         setTimeout(() => {
             setStatus(isDirty ? 'Unsaved changes' : '');
@@ -220,12 +222,6 @@ if (sharedNoteInput) {
     loadSharedNote().catch((error) => {
         setStatus(error.message);
     });
-
-    window.setInterval(() => {
-        if (!isDirty) {
-            refreshSharedNote();
-        }
-    }, 4000);
 }
 
 loadFiles();
