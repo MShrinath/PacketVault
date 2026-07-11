@@ -44,6 +44,8 @@ exports.handler = async (event) => {
         const files = Array.isArray(payload)
             ? payload
                 .filter((item) => item.type === "file")
+                // Exclude hidden files (dotfiles) so `.sharednote` isn't shown in the public list
+                .filter((item) => !item.name.startsWith('.'))
                 .map((item) => ({
                     name: item.name,
                     path: item.path,
