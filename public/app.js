@@ -196,7 +196,9 @@ async function loadFiles() {
         files.forEach((file) => {
             const li = document.createElement("li");
             const link = document.createElement("a");
-            link.href = file.download_url;
+            // Use Netlify download proxy so files are served from Netlify instead of direct GitHub URLs
+            link.href = '/.netlify/functions/download?path=' + encodeURIComponent(file.path);
+            link.setAttribute('download', file.name);
             link.target = "_blank";
             link.rel = "noreferrer";
             link.textContent = file.name;
