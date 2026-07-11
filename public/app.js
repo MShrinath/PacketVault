@@ -154,7 +154,9 @@ async function uploadFileFromFile(file) {
         };
         reader.onerror = () => reject(new Error('File read error'));
         reader.readAsDataURL(file);
-    });
+        });
+    }
+
 
 async function loadFiles() {
     const list = document.getElementById("files");
@@ -293,4 +295,3 @@ if (dropZone) {
             setTimeout(() => toast.remove(), 200);
         }, timeout);
     }
-}
