@@ -254,21 +254,29 @@ if (dropZone) {
         if (!dt) return;
         const files = Array.from(dt.files || []);
         if (!files.length) return;
-
+        // Put dropped files into the file input so the user can review and
+        // click "Upload" to submit them explicitly.
+        if (fileInput) {
             try {
-                for (const f of files) {
-                    await uploadFileFromFile(f);
-                }
-            // clear file input selection and update hint
-            if (fileInput) {
-                fileInput.value = '';
-                dropHint.textContent = 'Drag & drop files here, or click to choose';
-            }
-            showToast('Uploaded', 'success');
-                await loadFiles();
+                // Merge existing staged files with newly dropped files, de-duplicate by name
+                const existing = fileInput.files && fileInput.files.length ? Array.from(fileInput.files) : [];
+                const map = new Map();
+                existing.forEach(f => map.set(f.name, f));
+                files.forEach(f => {
+                    if (!map.has(f.name)) map.set(f.name, f);
+                });
+
+                const data = new DataTransfer();
+                Array.from(map.values()).forEach(f => data.items.add(f));
+                fileInput.files = data.files;
+
+                const names = Array.from(map.keys()).join(', ');
+                dropHint.textContent = names || 'Drag & drop files here, or click to choose';
+                showToast('Files staged — click Upload to send', 'info');
             } catch (err) {
-                showToast(err?.message || 'Upload failed', 'error');
+                showToast(err?.message || 'Unable to prepare files', 'error');
             }
+        }
     });
 }
 
