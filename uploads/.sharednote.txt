@@ -1,3 +1,11 @@
-Helloworldfg
+brute force ,  background context..... 
 
-Finendjdjsjsjsn
+Attacker = Atomic Red Team process/script
+Victim = Local account/service/resource being targeted
+Both are on the same VM when you only have one VM.
+
+
+edr vs xdr
+
+
+edr / siem gets logs
