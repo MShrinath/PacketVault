@@ -1,14 +1,16 @@
-brute force ,  background context..... 
+scheduler is fo creating report daily
 
-Attacker = Atomic Red Team process/script
-Victim = Local account/service/resource being targeted
-Both are on the same VM when you only have one VM.
+connect to gti and db 
 
-
-edr vs xdr
+vuln.db < db
 
 
-edr / siem gets logs
+frontend
+backend
+config
+reports
+venv
+.env.example
+.gitignore
 
-
-github.com/TCS-MDR-COE/cti-dashboard
+reqs.txt
