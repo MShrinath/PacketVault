@@ -13,4 +13,10 @@ venv
 .env.example
 .gitignore
 
+
+
+Ddf
+
+
+
 reqs.txt
