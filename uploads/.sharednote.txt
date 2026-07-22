@@ -16,7 +16,16 @@ venv
 
 
 Ddf
+F004 
 
+
+C006 take nodues cert
+Indoor take forms
+Fill and sign by hod
+L4th go give few, take PC CMM
+PC CMM xerox give to F004, wait 3hrs, take TC
+
+Boi boi
 
 
 reqs.txt
