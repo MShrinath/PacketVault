@@ -9,26 +9,4 @@ venv
 .env.example
 .gitignore
 reqs.txt
------------------
-
-
-ERP lo ALLLL approved, get final approval in F004.
-
-Go to C006, tell ID number, wait some time, take nodues cert ORG.
-
-GO Indoor, get nodues xerox!!!(taken now in c006). also ask for nodues forms.
-
-nodues forms they will give 3 > OD form, TC form, CMM/PC form. (OD form lite not now)
-
-Fill other 2 forms and get signd by hod c203
-
-
-L4th go give PC form & nodues org> take PC / CMM ORGINALS
-
-get PC / CMM xerox!! 
-
-nodues xerox, TC form , PC / CMM xerox..... give these 4 in C006.
-
-wait time, take TC & CC
-
-adios KLU
+-----
