@@ -1,10 +1,6 @@
 scheduler is fo creating report daily
-
 connect to gti and db 
-
 vuln.db < db
-
-
 frontend
 backend
 config
@@ -12,20 +8,27 @@ reports
 venv
 .env.example
 .gitignore
-
-
-
-Ddf
-F004 
-
-
-C006 take nodues cert
-Indoor take forms
-Fill and sign by hod
-L4th go give few, take PC CMM
-PC CMM xerox give to F004, wait 3hrs, take TC
-
-Boi boi
-
-
 reqs.txt
+-----------------
+
+
+ERP lo ALLLL approved, get final approval in F004.
+
+Go to C006, tell ID number, wait some time, take nodues cert ORG.
+
+GO Indoor, get nodues xerox!!!(taken now in c006). also ask for nodues forms.
+
+nodues forms they will give 3 > OD form, TC form, CMM/PC form. (OD form lite not now)
+
+Fill other 2 forms and get signd by hod c203
+
+
+L4th go give PC form & nodues org> take PC / CMM ORGINALS
+
+get PC / CMM xerox!! 
+
+nodues xerox, TC form , PC / CMM xerox..... give these 4 in C006.
+
+wait time, take TC & CC
+
+adios KLU
