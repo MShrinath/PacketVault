@@ -21,17 +21,8 @@ function getPathParts(path) {
     .join("/");
 }
 
-function getDisposition(contentType, mode) {
-  const type = String(contentType || "").toLowerCase();
-  if (mode === "view" && (type.startsWith("image/") || type === "application/pdf" || type.startsWith("text/"))) {
-    return "inline";
-  }
-  return "attachment";
-}
-
-function buildContentDisposition(disposition, filename) {
-  const safeName = String(filename || "download").replace(/[\r\n"]/g, "_");
-  return `${disposition}; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(safeName)}`;
+function getDisposition(mode) {
+  return mode === "view" ? "inline" : "attachment";
 }
 
 exports.handler = async (event) => {
@@ -66,15 +57,14 @@ exports.handler = async (event) => {
     const buf = Buffer.from(arrayBuf);
     const contentType = ghResp.headers.get("content-type") || "application/octet-stream";
     const filename = decodeURIComponent(path.split("/").pop() || "download");
-    const disposition = getDisposition(contentType, mode);
+    const disposition = getDisposition(mode);
 
     return {
       statusCode: 200,
       headers: {
         "Content-Type": contentType,
-        "Content-Disposition": buildContentDisposition(disposition, filename),
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff"
+        "Content-Disposition": `${disposition}; filename="${filename}"`,
+        "Cache-Control": "no-store"
       },
       body: buf.toString("base64"),
       isBase64Encoded: true

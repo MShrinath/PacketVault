@@ -221,7 +221,6 @@ async function loadFiles() {
             downloadLink.rel = "noreferrer";
             downloadLink.textContent = "Download";
             downloadLink.className = "file-action";
-            downloadLink.setAttribute('download', file.name);
             actions.appendChild(downloadLink);
 
             li.appendChild(actions);
