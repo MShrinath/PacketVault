@@ -209,11 +209,11 @@ async function loadFiles() {
 
             const viewLink = document.createElement("a");
             viewLink.href = file.download_url;
-            // viewLink.href = '/.netlify/functions/download?path=' + encodeURIComponent(file.path) + '&mode=view';
-            // viewLink.target = "_blank";
-            // viewLink.rel = "noreferrer";
-            // viewLink.textContent = "View";
-            // viewLink.className = "file-action";
+            viewLink.href = '/.netlify/functions/download?path=' + encodeURIComponent(file.path) + '&mode=view';
+            viewLink.target = "_blank";
+            viewLink.rel = "noreferrer";
+            viewLink.textContent = "View";
+            viewLink.className = "file-action";
             actions.appendChild(viewLink);
 
             const downloadLink = document.createElement("a");
