@@ -197,14 +197,34 @@ async function loadFiles() {
 
         files.forEach((file) => {
             const li = document.createElement("li");
-            const link = document.createElement("a");
-            // Use Netlify download proxy so files are served from Netlify instead of direct GitHub URLs
-            link.href = '/.netlify/functions/download?path=' + encodeURIComponent(file.path);
-            link.setAttribute('download', file.name);
-            link.target = "_blank";
-            link.rel = "noreferrer";
-            link.textContent = file.name;
-            li.appendChild(link);
+            li.className = "file-row";
+
+            const name = document.createElement("span");
+            name.className = "file-name";
+            name.textContent = file.name;
+            li.appendChild(name);
+
+            const actions = document.createElement("div");
+            actions.className = "file-actions";
+
+            const viewLink = document.createElement("a");
+            viewLink.href = '/.netlify/functions/download?path=' + encodeURIComponent(file.path) + '&mode=view';
+            viewLink.target = "_blank";
+            viewLink.rel = "noreferrer";
+            viewLink.textContent = "View";
+            viewLink.className = "file-action";
+            actions.appendChild(viewLink);
+
+            const downloadLink = document.createElement("a");
+            downloadLink.href = '/.netlify/functions/download?path=' + encodeURIComponent(file.path) + '&mode=download';
+            downloadLink.target = "_blank";
+            downloadLink.rel = "noreferrer";
+            downloadLink.textContent = "Download";
+            downloadLink.className = "file-action";
+            downloadLink.setAttribute('download', file.name);
+            actions.appendChild(downloadLink);
+
+            li.appendChild(actions);
             list.appendChild(li);
         });
     } catch (error) {

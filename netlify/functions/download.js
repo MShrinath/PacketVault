@@ -13,6 +13,27 @@ function json(statusCode, body) {
   };
 }
 
+function getPathParts(path) {
+  return String(path || "")
+    .split("/")
+    .filter(Boolean)
+    .map(encodeURIComponent)
+    .join("/");
+}
+
+function getDisposition(contentType, mode) {
+  const type = String(contentType || "").toLowerCase();
+  if (mode === "view" && (type.startsWith("image/") || type === "application/pdf" || type.startsWith("text/"))) {
+    return "inline";
+  }
+  return "attachment";
+}
+
+function buildContentDisposition(disposition, filename) {
+  const safeName = String(filename || "download").replace(/[\r\n"]/g, "_");
+  return `${disposition}; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(safeName)}`;
+}
+
 exports.handler = async (event) => {
   if (!owner || !repo || !token) {
     return json(500, { error: "Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN" });
@@ -20,12 +41,15 @@ exports.handler = async (event) => {
 
   const qs = event.queryStringParameters || {};
   const path = qs.path || (qs.name ? `uploads/${qs.name}` : null);
+  const mode = String(qs.mode || "download").toLowerCase();
 
   if (!path) return json(400, { error: "Missing path or name query parameter" });
-  if (!path.startsWith('uploads/')) return json(400, { error: "Invalid path" });
+  if (!path.startsWith("uploads/")) return json(400, { error: "Invalid path" });
+  if (!["view", "download"].includes(mode)) return json(400, { error: "Invalid mode" });
 
   try {
-    const ghResp = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`, {
+    const ghPath = getPathParts(path);
+    const ghResp = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${ghPath}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.raw"
@@ -41,16 +65,18 @@ exports.handler = async (event) => {
     const arrayBuf = await ghResp.arrayBuffer();
     const buf = Buffer.from(arrayBuf);
     const contentType = ghResp.headers.get("content-type") || "application/octet-stream";
-    const filename = path.split('/').pop();
+    const filename = decodeURIComponent(path.split("/").pop() || "download");
+    const disposition = getDisposition(contentType, mode);
 
     return {
       statusCode: 200,
       headers: {
         "Content-Type": contentType,
-        "Content-Disposition": `attachment; filename="${encodeURIComponent(filename)}"`,
-        "Cache-Control": "no-store"
+        "Content-Disposition": buildContentDisposition(disposition, filename),
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff"
       },
-      body: buf.toString('base64'),
+      body: buf.toString("base64"),
       isBase64Encoded: true
     };
   } catch (err) {
