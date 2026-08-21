@@ -1,77 +1,77 @@
-name: Cleanup Uploads & Prune Git History
+# name: Cleanup Uploads & Prune Git History
 
-on:
-  schedule:
-    # Runs every day at 00:00 UTC
-    - cron: '0 0 * * *'
-  workflow_dispatch:
-    inputs:
-      base_hash:
-        description: 'Optional Base Commit Hash to reset history back to (leaves repo clean of binary blobs)'
-        required: false
-        default: ''
+# on:
+#   schedule:
+#     # Runs every day at 00:00 UTC
+#     - cron: '0 0 * * *'
+#   workflow_dispatch:
+#     inputs:
+#       base_hash:
+#         description: 'Optional Base Commit Hash to reset history back to (leaves repo clean of binary blobs)'
+#         required: false
+#         default: ''
 
-permissions:
-  contents: write
+# permissions:
+#   contents: write
 
-jobs:
-  cleanup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+# jobs:
+#   cleanup:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+#       - name: Configure Git
+#         run: |
+#           git config --global user.name "github-actions[bot]"
+#           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Prune Uploads and Reset History
-        env:
-          INPUT_BASE_HASH: ${{ github.event.inputs.base_hash }}
-          VAR_BASE_HASH: ${{ vars.BASE_COMMIT_HASH }}
-          SECRET_BASE_HASH: ${{ secrets.BASE_COMMIT_HASH }}
-          UPLOADS_DIR: ${{ vars.UPLOADS_DIR || 'uploads' }}
-          NOTE_PATH: ${{ vars.NOTE_PATH || 'uploads/.sharednote.txt' }}
-        run: |
-          BASE_HASH="${INPUT_BASE_HASH:-${VAR_BASE_HASH:-$SECRET_BASE_HASH}}"
-          CLEAN_UPLOADS_DIR="${UPLOADS_DIR#/}"
-          CLEAN_UPLOADS_DIR="${CLEAN_UPLOADS_DIR%/}"
-          CLEAN_NOTE_PATH="${NOTE_PATH#/}"
-          NOTE_FILENAME=$(basename "$CLEAN_NOTE_PATH")
+#       - name: Prune Uploads and Reset History
+#         env:
+#           INPUT_BASE_HASH: ${{ github.event.inputs.base_hash }}
+#           VAR_BASE_HASH: ${{ vars.BASE_COMMIT_HASH }}
+#           SECRET_BASE_HASH: ${{ secrets.BASE_COMMIT_HASH }}
+#           UPLOADS_DIR: ${{ vars.UPLOADS_DIR || 'uploads' }}
+#           NOTE_PATH: ${{ vars.NOTE_PATH || 'uploads/.sharednote.txt' }}
+#         run: |
+#           BASE_HASH="${INPUT_BASE_HASH:-${VAR_BASE_HASH:-$SECRET_BASE_HASH}}"
+#           CLEAN_UPLOADS_DIR="${UPLOADS_DIR#/}"
+#           CLEAN_UPLOADS_DIR="${CLEAN_UPLOADS_DIR%/}"
+#           CLEAN_NOTE_PATH="${NOTE_PATH#/}"
+#           NOTE_FILENAME=$(basename "$CLEAN_NOTE_PATH")
 
-          echo "Starting cleanup process..."
-          echo "Uploads directory: $CLEAN_UPLOADS_DIR"
-          echo "Preserving note: $CLEAN_NOTE_PATH"
+#           echo "Starting cleanup process..."
+#           echo "Uploads directory: $CLEAN_UPLOADS_DIR"
+#           echo "Preserving note: $CLEAN_NOTE_PATH"
 
-          if [ -n "$BASE_HASH" ]; then
-            echo "Using base commit hash: $BASE_HASH"
-            if git cat-file -e "${BASE_HASH}^{commit}" 2>/dev/null; then
-              echo "Soft resetting to base commit $BASE_HASH to purge past binary blobs from git history..."
-              git reset --soft "$BASE_HASH"
-            else
-              echo "Warning: Base commit hash $BASE_HASH not found in repository history. Skipping reset."
-            fi
-          fi
+#           if [ -n "$BASE_HASH" ]; then
+#             echo "Using base commit hash: $BASE_HASH"
+#             if git cat-file -e "${BASE_HASH}^{commit}" 2>/dev/null; then
+#               echo "Soft resetting to base commit $BASE_HASH to purge past binary blobs from git history..."
+#               git reset --soft "$BASE_HASH"
+#             else
+#               echo "Warning: Base commit hash $BASE_HASH not found in repository history. Skipping reset."
+#             fi
+#           fi
 
-          # Clean up any files in uploads directory while preserving the shared note and .gitkeep
-          echo "Removing uploaded files..."
-          mkdir -p "$CLEAN_UPLOADS_DIR"
-          find "$CLEAN_UPLOADS_DIR" -type f ! -name "$NOTE_FILENAME" ! -name '.gitkeep' -delete || true
+#           # Clean up any files in uploads directory while preserving the shared note and .gitkeep
+#           echo "Removing uploaded files..."
+#           mkdir -p "$CLEAN_UPLOADS_DIR"
+#           find "$CLEAN_UPLOADS_DIR" -type f ! -name "$NOTE_FILENAME" ! -name '.gitkeep' -delete || true
 
-          # Stage all changes
-          git add -A
+#           # Stage all changes
+#           git add -A
 
-          # Commit and force push if there are changes or history was reset
-          if ! git diff-index --quiet HEAD -- || [ -n "$BASE_HASH" ]; then
-            echo "Committing clean state..."
-            git commit -m "chore: cleanup vault uploads and prune history [skip ci]" || true
-            echo "Pushing changes to main branch..."
-            git push --force origin HEAD:${{ github.ref_name }}
-            echo "Cleanup complete. Git history is clean."
-          else
-            echo "No uploads to clean up and branch is already clean."
-          fi
+#           # Commit and force push if there are changes or history was reset
+#           if ! git diff-index --quiet HEAD -- || [ -n "$BASE_HASH" ]; then
+#             echo "Committing clean state..."
+#             git commit -m "chore: cleanup vault uploads and prune history [skip ci]" || true
+#             echo "Pushing changes to main branch..."
+#             git push --force origin HEAD:${{ github.ref_name }}
+#             echo "Cleanup complete. Git history is clean."
+#           else
+#             echo "No uploads to clean up and branch is already clean."
+#           fi
