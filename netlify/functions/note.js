@@ -1,7 +1,9 @@
 const owner = process.env.GITHUB_OWNER;
 const repo = process.env.GITHUB_REPO;
 const token = process.env.GITHUB_TOKEN;
-const notePath = "uploads/.sharednote.txt";
+const branch = process.env.GITHUB_BRANCH;
+const uploadsDir = (process.env.UPLOADS_DIR || "uploads").replace(/^\/+|\/+$/g, "");
+const notePath = (process.env.NOTE_PATH || `${uploadsDir}/.sharednote.txt`).replace(/^\/+/g, "");
 
 function json(statusCode, body) {
   return {
@@ -15,7 +17,8 @@ function json(statusCode, body) {
 }
 
 async function readCurrentNote() {
-  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${notePath}`, {
+  const query = branch ? `?ref=${encodeURIComponent(branch)}` : "";
+  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(notePath)}${query}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json"
@@ -55,7 +58,6 @@ exports.handler = async (event) => {
     }
 
     let payload;
-
     try {
       payload = JSON.parse(event.body || "{}");
     } catch {
@@ -65,18 +67,23 @@ exports.handler = async (event) => {
     const content = typeof payload.content === "string" ? payload.content : "";
 
     const current = await readCurrentNote();
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${notePath}`, {
+    const bodyData = {
+      message: "Update shared note via PacketVault",
+      content: Buffer.from(content, "utf8").toString("base64"),
+      sha: current.sha || undefined
+    };
+    if (branch) {
+      bodyData.branch = branch;
+    }
+
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(notePath)}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github+json",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        message: "Update shared note",
-        content: Buffer.from(content, "utf8").toString("base64"),
-        sha: current.sha || undefined
-      })
+      body: JSON.stringify(bodyData)
     });
 
     const data = await response.json();
@@ -90,7 +97,7 @@ exports.handler = async (event) => {
 
     return json(200, {
       content,
-      updatedAt: data?.commit?.committer?.date || data?.content?.updated_at || null
+      updatedAt: data?.commit?.committer?.date || new Date().toISOString()
     });
   } catch (error) {
     return json(500, { error: error.message || "Unexpected error" });

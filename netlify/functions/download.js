@@ -1,6 +1,8 @@
 const owner = process.env.GITHUB_OWNER;
 const repo = process.env.GITHUB_REPO;
 const token = process.env.GITHUB_TOKEN;
+const branch = process.env.GITHUB_BRANCH;
+const uploadsDir = (process.env.UPLOADS_DIR || "uploads").replace(/^\/+|\/+$/g, "");
 
 function json(statusCode, body) {
   return {
@@ -21,8 +23,44 @@ function getPathParts(path) {
     .join("/");
 }
 
-function getDisposition(mode) {
-  return mode === "view" ? "inline" : "attachment";
+function getMimeType(filename) {
+  const ext = (filename.split(".").pop() || "").toLowerCase();
+  const mimeTypes = {
+    // Images
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    gif: "image/gif",
+    webp: "image/webp",
+    svg: "image/svg+xml",
+    ico: "image/x-icon",
+    bmp: "image/bmp",
+    avif: "image/avif",
+    // Documents
+    pdf: "application/pdf",
+    txt: "text/plain; charset=utf-8",
+    md: "text/markdown; charset=utf-8",
+    json: "application/json; charset=utf-8",
+    csv: "text/csv; charset=utf-8",
+    html: "text/plain; charset=utf-8", // text/plain to avoid XSS execution in downloads
+    css: "text/css; charset=utf-8",
+    js: "text/plain; charset=utf-8",
+    // Media
+    mp3: "audio/mpeg",
+    wav: "audio/wav",
+    ogg: "audio/ogg",
+    m4a: "audio/mp4",
+    mp4: "video/mp4",
+    webm: "video/webm",
+    mov: "video/quicktime",
+    // Archives
+    zip: "application/zip",
+    tar: "application/x-tar",
+    gz: "application/gzip",
+    "7z": "application/x-7z-compressed"
+  };
+
+  return mimeTypes[ext] || "application/octet-stream";
 }
 
 exports.handler = async (event) => {
@@ -31,16 +69,26 @@ exports.handler = async (event) => {
   }
 
   const qs = event.queryStringParameters || {};
-  const path = qs.path || (qs.name ? `uploads/${qs.name}` : null);
+  let path = qs.path || qs.name || null;
   const mode = String(qs.mode || "download").toLowerCase();
 
   if (!path) return json(400, { error: "Missing path or name query parameter" });
-  if (!path.startsWith("uploads/")) return json(400, { error: "Invalid path" });
+
+  path = path.replace(/^\/+/g, "");
+  if (!path.startsWith(`${uploadsDir}/`)) {
+    path = `${uploadsDir}/${path}`;
+  }
+
+  if (path.includes("..")) {
+    return json(400, { error: "Invalid path" });
+  }
+
   if (!["view", "download"].includes(mode)) return json(400, { error: "Invalid mode" });
 
   try {
     const ghPath = getPathParts(path);
-    const ghResp = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${ghPath}`, {
+    const query = branch ? `?ref=${encodeURIComponent(branch)}` : "";
+    const ghResp = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${ghPath}${query}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.raw"
@@ -55,16 +103,16 @@ exports.handler = async (event) => {
 
     const arrayBuf = await ghResp.arrayBuffer();
     const buf = Buffer.from(arrayBuf);
-    const contentType = ghResp.headers.get("content-type") || "application/octet-stream";
     const filename = decodeURIComponent(path.split("/").pop() || "download");
-    const disposition = getDisposition(mode);
+    const disposition = mode === "view" ? "inline" : "attachment";
+    const contentType = getMimeType(filename);
 
     return {
       statusCode: 200,
       headers: {
         "Content-Type": contentType,
         "Content-Disposition": `${disposition}; filename="${filename}"`,
-        "Cache-Control": "no-store"
+        "Cache-Control": "public, max-age=300"
       },
       body: buf.toString("base64"),
       isBase64Encoded: true

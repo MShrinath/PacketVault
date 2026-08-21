@@ -1,0 +1,19 @@
+# Local Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Netlify dev & build
+.netlify/
+
+# Node Dependencies (if initialized locally)
+node_modules/
+
+# OS / Editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
