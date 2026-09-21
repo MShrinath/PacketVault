@@ -1,0 +1,13 @@
+identifier,asset_type,instruction,eligible_for_bounty,eligible_for_submission,availability_requirement,confidentiality_requirement,integrity_requirement,max_severity,system_tags,created_at,updated_at
+https://github.com/circlefin/malachite,SOURCE_CODE,"The repository containing the source-code for Malachite.    Malachite is a Byzantine-fault tolerant (BFT) consensus engine implemented in Rust.
+ 
+==Partial scope only:==
+in scope is code/crates minus the starknet and test folders; everything outside code/crates is out of scope.",true,true,high,high,high,critical,,2026-02-26 18:31:10 UTC,2026-09-14 18:16:53 UTC
+https://github.com/circlefin/arc-node,SOURCE_CODE,"",true,true,,,,critical,,2026-09-14 18:10:43 UTC,2026-09-14 18:10:43 UTC
+https://github.com/circlefin/arc-remote-signer,SOURCE_CODE,"",true,true,,,,critical,,2026-09-14 18:10:43 UTC,2026-09-14 18:10:43 UTC
+rpc.testnet.arc.network,URL,"",true,true,,,,critical,,2026-09-14 18:10:43 UTC,2026-09-14 18:10:43 UTC
+*.arc.io,WILDCARD,Eligible for Tier B bounty payouts. ,true,true,medium,high,high,critical,,2026-09-14 20:03:11 UTC,2026-09-14 20:03:11 UTC
+rpc.drpc.testnet.arc.network,URL,"",true,true,,,,critical,,2026-09-14 20:58:43 UTC,2026-09-14 20:58:43 UTC
+community.arc.io,URL,"",false,false,,,,none,,2026-09-16 21:12:58 UTC,2026-09-16 21:12:58 UTC
+explorer.arc.io,URL,"",false,false,not_defined,not_defined,not_defined,none,,2026-09-16 21:48:47 UTC,2026-09-16 21:48:47 UTC
+help.arc.io,URL,"",false,false,not_defined,not_defined,not_defined,none,,2026-09-16 21:51:20 UTC,2026-09-16 21:51:20 UTC
